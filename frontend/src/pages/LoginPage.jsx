@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
+import api from '../api/axios';
 
 function FieldLabel({ children }) {
   return (
@@ -34,12 +35,42 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    // TODO: wire to POST /api/auth/login
-    console.log('Login submitted:', { email, password, remember });
+    setLoading(true);
+
+    try {
+      // Send login credentials to the backend
+      const response = await api.post('/auth/login', { email, password });
+
+      const { token, user } = response.data;
+
+      // Store the token so the user stays logged in
+      // Use localStorage for persistent login, or sessionStorage if "remember" is off
+      if (remember) {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+      } else {
+        sessionStorage.setItem('token', token);
+        sessionStorage.setItem('user', JSON.stringify(user));
+      }
+
+      console.log('Logged in:', user);
+
+      // Redirect to the dashboard after successful login
+      navigate('/dashboard');
+    } catch (err) {
+      // Extract a readable error message from the backend response,
+      // or fall back to a generic message if something unexpected happens
+      const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,14 +88,14 @@ export default function LoginPage() {
       <div className="space-y-3 mb-7">
         <button
           type="button"
-          onClick={() => {/* TODO: wire to GitHub OAuth */}}
+          onClick={() => alert('GitHub sign-in coming soon!')}
           className="w-full flex items-center justify-center gap-2.5 rounded-md border border-[#1B1E29]/12 bg-white/70 py-2.5 text-sm font-medium text-[#1B1E29] hover:bg-white hover:border-[#1B1E29]/20 transition-colors"
         >
           <GithubIcon /> Continue with GitHub
         </button>
         <button
           type="button"
-          onClick={() => {/* TODO: wire to Google OAuth */}}
+          onClick={() => alert('Google sign-in coming soon!')}
           className="w-full flex items-center justify-center gap-2.5 rounded-md border border-[#1B1E29]/12 bg-white/70 py-2.5 text-sm font-medium text-[#1B1E29] hover:bg-white hover:border-[#1B1E29]/20 transition-colors"
         >
           <GoogleIcon /> Continue with Google
@@ -79,6 +110,7 @@ export default function LoginPage() {
         <span className="h-px flex-1 bg-[#1B1E29]/10" />
       </div>
 
+      {/* Show a backend or network error message, if any */}
       {error && (
         <div className="mb-5 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
@@ -129,9 +161,10 @@ export default function LoginPage() {
 
         <button
           type="submit"
-          className="w-full mt-2 rounded-md bg-[#101946] py-3.5 px-6 text-sm font-semibold tracking-wide text-[#fafbfb] hover:bg-[#0D1438] hover:shadow-[0_8px_24px_-8px_rgba(16,25,70,0.4)] active:bg-[#0D1438] transition-all duration-200"
+          disabled={loading}
+          className="w-full mt-2 rounded-md bg-[#101946] py-3.5 px-6 text-sm font-semibold tracking-wide text-[#fafbfb] hover:bg-[#0D1438] hover:shadow-[0_8px_24px_-8px_rgba(16,25,70,0.4)] active:bg-[#0D1438] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sign in
+          {loading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
 
