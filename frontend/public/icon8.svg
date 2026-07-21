@@ -1,0 +1,17 @@
+<svg width="680" height="680" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg">
+  <!-- Letter C -->
+  <circle
+    cx="340"
+    cy="340"
+    r="170"
+    fill="none"
+    stroke="#7C82B8"
+    stroke-width="32"
+    stroke-dasharray="938 130"
+    transform="rotate(-45 340 340)"
+  />
+
+  <!-- Letter T -->
+  <rect x="240" y="230" width="200" height="46" rx="4" fill="#FFFFFF"/>
+  <rect x="317" y="276" width="46" height="174" rx="4" fill="#FFFFFF"/>
+</svg>

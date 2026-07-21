@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import AuthLayout from '../components/AuthLayout';
 import api from '../api/axios';
+import toast from 'react-hot-toast';
 
 function FieldLabel({ children }) {
   return (
-    <label className="block text-[11px] font-medium tracking-[0.15em] text-[#6B6558] uppercase font-['JetBrains_Mono',monospace] mb-1.5">
+    <label className="block text-[11px] font-medium tracking-[0.15em] text-[#6B6558] uppercase font-['Inter',sans-serif] mb-1.5">
       {children}
     </label>
   );
@@ -45,7 +46,6 @@ export default function RegisterPage() {
 
     try {
       // Send registration data to the backend
-      // Note: backend expects "fullName", while our local state is called "name"
       const response = await api.post('/auth/register', {
         fullName: name,
         email,
@@ -84,14 +84,28 @@ export default function RegisterPage() {
       <div className="space-y-3 mb-7">
         <button
           type="button"
-          onClick={() => alert('GitHub sign-in coming soon!')}
+          onClick={() => toast('GitHub sign-in — coming soon', {
+            icon: (
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
+                <circle cx="8" cy="8" r="6.5" stroke="#7C82B8" strokeWidth="1.4" />
+                <path d="M8 4.5V8l2.5 1.5" stroke="#7C82B8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ),
+          })}
           className="w-full flex items-center justify-center gap-2.5 rounded-md border border-[#1B1E29]/12 bg-white/70 py-2.5 text-sm font-medium text-[#1B1E29] hover:bg-white hover:border-[#1B1E29]/20 transition-colors"
         >
           <GithubIcon /> Continue with GitHub
         </button>
         <button
           type="button"
-          onClick={() => alert('Google sign-in coming soon!')}
+          onClick={() => toast('Google sign-in coming soon', {
+            icon: (
+              <svg viewBox="0 0 16 16" width="16" height="16" fill="none">
+                <circle cx="8" cy="8" r="6.5" stroke="#7C82B8" strokeWidth="1.4" />
+                <path d="M8 4.5V8l2.5 1.5" stroke="#7C82B8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            ),
+          })}
           className="w-full flex items-center justify-center gap-2.5 rounded-md border border-[#1B1E29]/12 bg-white/70 py-2.5 text-sm font-medium text-[#1B1E29] hover:bg-white hover:border-[#1B1E29]/20 transition-colors"
         >
           <GoogleIcon /> Continue with Google

@@ -10,16 +10,8 @@ export default function AuthFooter() {
             &copy; {new Date().getFullYear()} TaskCraft AI. All rights reserved.
           </p>
           <nav className="flex items-center gap-4">
-            <Link to="/privacy" className="text-xs text-[#8a8272] hover:text-[#1B1E29] transition-colors">
-              Privacy
-            </Link>
-            <span className="text-[#1B1E29]/15">·</span>
-            <Link to="/terms" className="text-xs text-[#8a8272] hover:text-[#1B1E29] transition-colors">
-              Terms
-            </Link>
-            <span className="text-[#1B1E29]/15">·</span>
-            <Link to="/support" className="text-xs text-[#8a8272] hover:text-[#1B1E29] transition-colors">
-              Support
+            <Link to="/about" className="text-xs text-[#8a8272] hover:text-[#1B1E29] transition-colors">
+              Who's behind TaskCraft AI
             </Link>
           </nav>
         </div>

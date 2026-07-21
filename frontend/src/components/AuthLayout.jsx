@@ -2,32 +2,13 @@ import DecompositionBlueprint from './DecompositionBlueprint';
 import BrandMark from './BrandMark';
 import AuthFooter from './AuthFooter';
 
-/**
- * AuthLayout — shared split-screen shell for Login and Register.
- *
- * Left panel: dark "blueprint" canvas with the signature illustration —
- * a big vague task decomposing into 4 concrete subtasks. This is the
- * one bold, subject-specific move; everything else stays quiet.
- *
- * Right panel: warm, paper-toned form surface. No glassmorphism, no
- * generic gradient — a calm, premium counterpoint to the blueprint.
- *
- * Accent palette: #7C82B8 (muted periwinkle, primary accent),
- * #101946 / #0D1438 (deep navy, buttons + hover), #05091d (canvas bg).
- *
- * Required once in your global CSS (e.g. index.css):
- *
- * @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
- */
-
 export default function AuthLayout({ eyebrow, headline, subhead, children }) {
   return (
-    <div className="min-h-screen w-full flex bg-[#05091d] font-['Inter',sans-serif]">
-      {/* Left — blueprint / brand panel */}
-      <div className="hidden lg:flex lg:w-[56%] relative flex-col justify-between px-14 py-10 overflow-hidden">
-        {/* ambient glow — two depths of the same accent, no more mixed gold/violet */}
-        <div className="pointer-events-none absolute -top-24 -left-24 w-[420px] h-[420px] rounded-full bg-[#7C82B8]/18 blur-[120px]" />
-        <div className="pointer-events-none absolute bottom-[-140px] right-[-100px] w-[380px] h-[380px] rounded-full bg-[#101946]/40 blur-[130px]" />
+    <div className="flex min-h-screen w-full bg-[#05091d] font-['Inter',sans-serif]">
+      {/* Desktop: blueprint / brand panel */}
+      <div className="relative hidden overflow-hidden px-14 py-10 lg:flex lg:w-[56%] lg:flex-col lg:justify-between">
+        <div className="pointer-events-none absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-[#7C82B8]/18 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-[140px] -right-[100px] h-[380px] w-[380px] rounded-full bg-[#101946]/40 blur-[130px]" />
 
         <div className="relative z-10">
           <BrandMark theme="dark" size="lg" />
@@ -40,30 +21,47 @@ export default function AuthLayout({ eyebrow, headline, subhead, children }) {
         </div>
 
         <div className="relative z-10 max-w-lg">
-          <p className="text-xs font-medium tracking-[0.2em] uppercase font-['JetBrains_Mono',monospace] mb-3 text-[#7C82B8]">
+          <p className="mb-3 font-['JetBrains_Mono',monospace] text-xs font-medium uppercase tracking-[0.2em] text-[#7C82B8]">
             {eyebrow ?? 'Smart decomposition'}
           </p>
-          <h1 className="text-[32px] leading-[1.15] font-semibold text-[#F3F1EA] font-['Space_Grotesk',sans-serif] mb-3">
-            {headline ?? 'One vague task in. Four clear moves out.'}
+
+          <h1 className="mb-3 font-['Space_Grotesk',sans-serif] text-[32px] font-semibold leading-[1.15] text-[#F3F1EA]">
+            {headline ?? 'Describe the task. Get the steps.'}
           </h1>
-          <p className="text-base text-[#8B8FA3] leading-relaxed">
-            {subhead ?? 'TaskCraft breaks big, unclear work into concrete steps your team can start today.'}
+
+          <p className="text-base leading-relaxed text-[#8B8FA3]">
+            {subhead ??
+              'TaskCraft breaks big, unclear work into concrete steps your team can start today.'}
           </p>
         </div>
       </div>
 
-      {/* Right — form panel */}
-      <div className="flex-1 flex flex-col bg-gradient-to-br from-[#F8F5EF] via-[#F6F3EC] to-[#F0EBDF]">
-        {/* mobile-only compact brand mark */}
-        <div className="lg:hidden px-6 py-6">
+      {/* Form panel */}
+      <div className="flex flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#EEF0F9] to-[#fafbfb]">
+        {/* Mobile: compact landing introduction */}
+        <div className="px-6 pb-2 pt-6 lg:hidden">
           <BrandMark theme="light" size="sm" />
+
+          <div className="mt-6">
+            <p className="mb-2 font-['JetBrains_Mono',monospace] text-[10px] font-medium uppercase tracking-[0.18em] text-[#7C82B8]">
+              {eyebrow ?? 'Smart decomposition'}
+            </p>
+
+            <h1 className="font-['Space_Grotesk',sans-serif] text-[26px] font-semibold leading-[1.15] text-[#0F172A]">
+              {headline ?? 'Describe the task. Get the steps.'}
+            </h1>
+
+            <p className="mt-2 text-sm leading-relaxed text-[#64748B]">
+              {subhead ??
+                'Turn unclear work into concrete steps your team can start today.'}
+            </p>
+          </div>
         </div>
 
-        {/* items-end instead of items-center — drops the card down toward the
-            breathing room already freed up above the footer */}
-        <div className="flex-1 flex items-end justify-center px-6 py-10">
-          <div className="w-full max-w-sm relative motion-safe:animate-[fadeUp_0.5s_ease-out_0.15s_both]">
-            <div className="rounded-2xl border border-black/[0.07] bg-white/55 backdrop-blur-[2px] shadow-[0_1px_2px_rgba(27,30,41,0.05),0_20px_40px_-20px_rgba(27,30,41,0.22)] px-9 py-11">
+        {/* Registration / login form */}
+        <div className="flex flex-1 items-start justify-center px-6 py-8 sm:items-end sm:py-10">
+          <div className="relative w-full max-w-sm motion-safe:animate-[fadeUp_0.5s_ease-out_0.15s_both]">
+            <div className="rounded-2xl border border-black/[0.07] bg-white/55 px-6 py-8 shadow-[0_1px_2px_rgba(27,30,41,0.05),0_20px_40px_-20px_rgba(27,30,41,0.22)] backdrop-blur-[2px] sm:px-9 sm:py-11">
               {children}
             </div>
           </div>
