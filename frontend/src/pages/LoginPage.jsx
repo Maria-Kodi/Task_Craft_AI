@@ -48,25 +48,32 @@ export default function LoginPage() {
       // Send login credentials to the backend
       const response = await api.post('/auth/login', { email, password });
 
+      // Отримуємо token та user з відповіді бекенду
       const { token, user } = response.data;
 
-      // Store the token so the user stays logged in
-      // Use localStorage for persistent login, or sessionStorage if "remember" is off
-      if (remember) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-      } else {
-        sessionStorage.setItem('token', token);
-        sessionStorage.setItem('user', JSON.stringify(user));
+      // Спочатку повністю очищаємо старі дані з обох сховищ, щоб не було конфліктів
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+
+      const storage = remember ? localStorage : sessionStorage;
+
+      // 1. Store the token (check if it exists)
+      if (token) {
+        storage.setItem('token', token);
       }
 
-      console.log('Logged in:', user);
+      // 2. Safely store the user: only if user is not undefined!
+      if (user) {
+        storage.setItem('user', JSON.stringify(user));
+      }
+
+      console.log('Logged in successfully:', { token, user });
 
       // Redirect to the dashboard after successful login
       navigate('/dashboard');
     } catch (err) {
-      // Extract a readable error message from the backend response,
-      // or fall back to a generic message if something unexpected happens
       const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
       setError(message);
     } finally {

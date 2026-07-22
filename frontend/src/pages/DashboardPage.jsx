@@ -558,20 +558,34 @@ const handleStartMyDay = async () => {
   }
 };
 
-
-  const navigate = useNavigate();
+const navigate = useNavigate();
   const titleInputRef = useRef(null);
   const [searchParams] = useSearchParams();
 
-  const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-  const user = storedUser ? JSON.parse(storedUser) : null;
-  const initials = (user?.fullName || 'U')
+  const getStoredUser = () => {
+    const rawData = localStorage.getItem('user') || sessionStorage.getItem('user');
+    
+    if (!rawData || rawData === 'undefined' || rawData === 'null') {
+      return null;
+    }
+
+    try {
+      return JSON.parse(rawData);
+    } catch (err) {
+      console.error('Failed to parse user data:', err);
+      return null;
+    }
+  };
+
+  const user = getStoredUser();
+
+  const initials = (user?.fullName || user?.name || 'U')
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .slice(0, 2)
     .join('')
     .toUpperCase();
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 6 },
