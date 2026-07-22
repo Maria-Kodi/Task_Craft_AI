@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 // Extend Express Request type to include the decoded user info
 export interface AuthRequest extends Request {
   userId?: string;
+  user?: any;
 }
 
 export const protect = (req: AuthRequest, res: Response, next: NextFunction): void => {
