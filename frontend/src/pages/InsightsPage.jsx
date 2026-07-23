@@ -84,12 +84,27 @@ export default function InsightsPage() {
     }
   };
 
-  const topLevelTasks = useMemo(() => tasks.filter((t) => !t.parentTask), [tasks]);
+  const safeTasks = useMemo(() => (Array.isArray(tasks) ? tasks : []), [tasks]);
 
-  const total = topLevelTasks.length;
-  const doneCount = topLevelTasks.filter((t) => t.status === 'done').length;
-  const activeCount = topLevelTasks.filter((t) => t.status === 'in-progress').length;
-  const completionRate = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+  const topLevelTasks = useMemo(() => safeTasks.filter((t) => !t.parentTask), [safeTasks]);
+
+  const { total, doneCount, activeCount, completionRate } = useMemo(() => {
+    const total = topLevelTasks.length;
+    let done = 0;
+    let active = 0;
+
+    for (const t of topLevelTasks) {
+      if (t.status === 'done') done++;
+      else if (t.status === 'in-progress') active++;
+    }
+
+    return {
+      total,
+      doneCount: done,
+      activeCount: active,
+      completionRate: total > 0 ? Math.round((done / total) * 100) : 0,
+    };
+  }, [topLevelTasks]);
 
   const priorityData = useMemo(() => {
     const counts = { low: 0, medium: 0, high: 0 };
