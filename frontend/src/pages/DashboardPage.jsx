@@ -618,17 +618,27 @@ const navigate = useNavigate();
   const fetchTasks = async () => {
     try {
       const response = await api.get('/tasks');
-      setTasks(response.data.tasks);
+      const taskData = response.data?.tasks || response.data;
+      
+      if (Array.isArray(taskData)) {
+        setTasks(taskData);
+      } else {
+        setTasks([]); 
+      }
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
       toast.error('Could not load your tasks');
+      setTasks([]); 
     } finally {
       setTasksLoaded(true);
     }
   };
 
-  const topLevelTasks = tasks.filter((t) => !t.parentTask);
-  const getSubtasks = (taskId) => tasks.filter((t) => t.parentTask === taskId);
+  
+const safeTasks = Array.isArray(tasks) ? tasks : [];
+const topLevelTasks = safeTasks.filter((t) => !t.parentTask);
+const getSubtasks = (taskId) => safeTasks.filter((t) => t.parentTask === taskId);
+
   const detailTask = tasks.find((t) => t._id === detailTaskId) || null;
   const flowTask = tasks.find((t) => t._id === flowTaskId) || null;
   const focusTask = tasks.find((t) => t._id === focusTaskId) || null;
