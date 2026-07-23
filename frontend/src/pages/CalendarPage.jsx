@@ -48,7 +48,7 @@ function buildMonthGrid(year, month) {
 }
 
 function getParentTaskId(task) {
-  return task.parentTask?._id || task.parentTask || null;
+  return task?.parentTask?._id || task?.parentTask || null;
 }
 
 function TaskPill({ task, onClick }) {
@@ -93,24 +93,30 @@ export default function CalendarPage() {
   const fetchTasks = async () => {
     try {
       const response = await api.get('/tasks');
-      setTasks(response.data.tasks);
+      // Захист: отримуємо масив незалежно від того, прийшов він у response.data чи response.data.tasks
+      const taskData = response.data?.tasks || response.data;
+      setTasks(Array.isArray(taskData) ? taskData : []);
     } catch (err) {
       console.error('Failed to fetch tasks:', err);
       toast.error('Could not load calendar data');
+      setTasks([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // Безпечний масив завдань
+  const safeTasks = useMemo(() => (Array.isArray(tasks) ? tasks : []), [tasks]);
+
   const topLevelTasks = useMemo(
-    () => tasks.filter((task) => !getParentTaskId(task)),
-    [tasks]
+    () => safeTasks.filter((task) => !getParentTaskId(task)),
+    [safeTasks]
   );
 
   const getSubtasks = (taskId) =>
-    tasks.filter((task) => getParentTaskId(task) === taskId);
+    safeTasks.filter((task) => getParentTaskId(task) === taskId);
 
-  const detailTask = tasks.find((task) => task._id === detailTaskId) || null;
+  const detailTask = safeTasks.find((task) => task._id === detailTaskId) || null;
 
   const scheduledTasks = useMemo(
     () => topLevelTasks.filter((task) => task.dueDate),

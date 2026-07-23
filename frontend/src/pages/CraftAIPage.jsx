@@ -48,13 +48,13 @@ function ThinkingDots() {
 }
 
 function TaskPreviewCard({ task, subtasks }) {
-  const priority = PRIORITY_CONFIG[task.priority || 'medium'];
+  const priority = PRIORITY_CONFIG[task?.priority || 'medium'];
 
   return (
     <div className="mt-3 bg-[#fafbfb] border border-[#1B1E29]/8 rounded-lg p-3.5">
       <div className="flex items-start justify-between gap-2">
         <h4 className="text-[13.5px] font-medium text-[#1B1E29] font-['Space_Grotesk',sans-serif] leading-snug">
-          {task.title}
+          {task?.title}
         </h4>
         <span
           className="text-[9.5px] font-['IBM_Plex_Mono',monospace] font-medium tracking-wide uppercase px-1.5 py-0.5 rounded shrink-0"
@@ -64,7 +64,7 @@ function TaskPreviewCard({ task, subtasks }) {
         </span>
       </div>
 
-      {subtasks.length > 0 && (
+      {Array.isArray(subtasks) && subtasks.length > 0 && (
         <ul className="mt-2.5 space-y-1.5">
           {subtasks.map((s) => (
             <li key={s._id} className="flex items-center gap-2 text-[12.5px] text-[#6B6558]">
@@ -76,7 +76,7 @@ function TaskPreviewCard({ task, subtasks }) {
       )}
 
       <Link
-        to={`/dashboard?open=${task._id}`}
+        to={`/dashboard?open=${task?._id}`}
         className="mt-3 inline-flex items-center gap-1 text-[11.5px] font-medium text-[#101946] hover:text-[#7C82B8] transition-colors"
       >
         View on board
@@ -150,9 +150,13 @@ export default function CraftAIPage() {
   const fetchStats = async () => {
     try {
       const response = await api.get('/tasks');
-      const allTasks = response.data.tasks;
-      const aiPlans = allTasks.filter((t) => !t.parentTask && t.isAIGenerated);
-      const aiSteps = allTasks.filter((t) => t.parentTask && t.isAIGenerated);
+      // Захищена обробка відповіді сервера
+      const taskData = response.data?.tasks || response.data;
+      const allTasks = Array.isArray(taskData) ? taskData : [];
+
+      const aiPlans = allTasks.filter((t) => t && !t.parentTask && t.isAIGenerated);
+      const aiSteps = allTasks.filter((t) => t && t.parentTask && t.isAIGenerated);
+      
       setPlanCount(aiPlans.length);
       setStepCount(aiSteps.length);
     } catch (err) {
@@ -181,12 +185,12 @@ export default function CraftAIPage() {
 
     try {
       const response = await api.post('/ai/craft', { prompt: text });
-      const { task, subtasks } = response.data;
+      const { task, subtasks = [] } = response.data;
 
       const replyText =
-        subtasks.length > 0
+        Array.isArray(subtasks) && subtasks.length > 0
           ? `Here's a plan for that — I've added it to your board with ${subtasks.length} steps.`
-          : `I've added "${task.title}" to your board.`;
+          : `I've added "${task?.title || 'Task'}" to your board.`;
 
       setMessages((prev) =>
         prev
@@ -200,7 +204,7 @@ export default function CraftAIPage() {
       );
 
       setPlanCount((c) => c + 1);
-      setStepCount((c) => c + subtasks.length);
+      setStepCount((c) => c + (Array.isArray(subtasks) ? subtasks.length : 0));
       toast.success('Plan added to your board', { icon: '✨' });
     } catch (err) {
       console.error('Craft AI failed:', err);
@@ -247,15 +251,14 @@ export default function CraftAIPage() {
           </div>
 
           <div className="flex items-center gap-4">
-
-          <Link
-  to="/settings"
-  className="w-8 h-8 rounded-full bg-[#7C82B8]/20 border border-[#7C82B8]/30 flex items-center justify-center hover:bg-[#7C82B8]/30 transition-colors"
->
-  <span className="text-[11px] font-semibold text-white font-['Space_Grotesk',sans-serif]">
-    {initials}
-  </span>
-</Link>
+            <Link
+              to="/settings"
+              className="w-8 h-8 rounded-full bg-[#7C82B8]/20 border border-[#7C82B8]/30 flex items-center justify-center hover:bg-[#7C82B8]/30 transition-colors"
+            >
+              <span className="text-[11px] font-semibold text-white font-['Space_Grotesk',sans-serif]">
+                {initials}
+              </span>
+            </Link>
 
             <button
               onClick={handleLogout}

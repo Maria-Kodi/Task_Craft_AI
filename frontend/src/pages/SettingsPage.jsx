@@ -19,7 +19,9 @@ function SectionLabel({ children, dark }) {
 
 function formatMemberSince(dateString) {
   if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
 export default function SettingsPage() {
@@ -46,9 +48,12 @@ export default function SettingsPage() {
   const fetchProfile = async () => {
     try {
       const response = await api.get('/users/me');
-      setProfile(response.data.user);
-      setFullName(response.data.user.fullName);
-      setEmail(response.data.user.email);
+      const user = response.data?.user || response.data;
+      if (user) {
+        setProfile(user);
+        setFullName(user.fullName || '');
+        setEmail(user.email || '');
+      }
     } catch (err) {
       console.error('Failed to load profile:', err);
       toast.error('Could not load your profile');
@@ -56,7 +61,9 @@ export default function SettingsPage() {
   };
 
   const initials = (fullName || 'U')
+    .trim()
     .split(' ')
+    .filter(Boolean)
     .map((n) => n[0])
     .slice(0, 2)
     .join('')
@@ -76,12 +83,17 @@ export default function SettingsPage() {
 
     try {
       const response = await api.put('/users/me', { fullName, email });
-      const updatedUser = response.data.user;
+      const updatedUser = response.data?.user || response.data;
+
       setProfile(updatedUser);
 
-      // Keep the cached user in sync so the header initials/name update everywhere
-      const storageKey = localStorage.getItem('user') ? localStorage : sessionStorage;
-      storageKey.setItem('user', JSON.stringify(updatedUser));
+      // Синхронізація оновлених даних користувача в активному сховищі
+      if (localStorage.getItem('user')) {
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+      if (sessionStorage.getItem('user')) {
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      }
 
       toast.success('Profile updated');
     } catch (err) {
@@ -195,7 +207,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <SectionLabel>Profile</SectionLabel>
-                {profile && (
+                {profile?.createdAt && (
                   <p className="text-[12px] text-[#6B6558] mt-1">
                     Member since {formatMemberSince(profile.createdAt)}
                   </p>
